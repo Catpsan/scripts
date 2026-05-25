@@ -1,0 +1,14 @@
+git fetch --all --prune && \
+git branch -r | grep -v '\->' | sed 's|origin/||' | while read branch; do
+    # Create local branch if it doesn't exist
+    if ! git show-ref --verify --quiet refs/heads/"$branch"; then
+        echo "Creating local branch: $branch"
+        git branch --track "$branch" "origin/$branch"
+    fi
+    
+    # Checkout and force sync with origin
+    echo "Syncing branch: $branch"
+    git checkout "$branch" --quiet 2>/dev/null
+    git reset --hard "origin/$branch"
+done && \
+git checkout main 2>/dev/null || git checkout master 2>/dev/null || true
